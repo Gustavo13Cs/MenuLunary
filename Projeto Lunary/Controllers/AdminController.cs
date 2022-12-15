@@ -11,6 +11,7 @@ using PagedList;
 using QRCoder;
 using System.Drawing.Imaging;
 using System.Drawing;
+using System.Net.NetworkInformation;
 
 namespace Projeto_Lunary.Controllers
 {
@@ -19,7 +20,7 @@ namespace Projeto_Lunary.Controllers
     public class AdminController : Controller
     {
         
-        LunaryEntities bd = new LunaryEntities();
+        LunaryEntities1 bd = new LunaryEntities1();
         // GET: Admin
         public ActionResult Index()
         {
@@ -42,15 +43,22 @@ namespace Projeto_Lunary.Controllers
         [HttpPost]
         public ActionResult Create(int? id, string nome, float preco, string descricao, float precopromocao, string categoria, HttpPostedFileBase imagem, string oferta, string disponibilidade)
         {
-            Image imageOriginal = Image.FromStream(imagem.InputStream, true, true);
+            string path = "";
+            Image img = Image.FromStream(imagem.InputStream, true,true);
+            imagem.InputStream.Seek(0, SeekOrigin.Begin);
+            img = Image.FromStream(imagem.InputStream, true, true);
+            if (img != null)
+            {
+                img.Save(@path, System.Drawing.Imaging.ImageFormat.Png);
+            }
             //dimensoes originais de imagem
-            double largura = imageOriginal.Width;
-            double altura = imageOriginal.Height;
+            double largura = img.Width;
+            double altura = img.Height;
             //obter nova altura
             double proporcao = 232 / largura;
             int novaAltura = (int)(proporcao * altura);
 
-            var miniatura = new Bitmap(imageOriginal, new Size(232, novaAltura));
+            var miniatura = new Bitmap(img, new Size(232, novaAltura));
 
             Restaurante novoRestaurante = new Restaurante();
             novoRestaurante.RESTANOME = nome;
@@ -117,8 +125,15 @@ namespace Projeto_Lunary.Controllers
 
         public ActionResult Editar(int? id, string nome, float preco, string descricao, float precopromocao, string categoria, HttpPostedFileBase imagem, string oferta, string disponibilidade)
         {
-            imagem.InputStream.Seek(0, SeekOrigin.Begin);
+
+            string path = "";
+            string str = "";
             Image imageOriginal = Image.FromStream(imagem.InputStream, true, true);
+            //imagem.InputStream.Seek(0, SeekOrigin.Begin);
+            if (imageOriginal != null)
+            {
+                imageOriginal.Save(@path, System.Drawing.Imaging.ImageFormat.Png);
+            }
             //dimensoes originais de imagem
             double largura = imageOriginal.Width;
             double altura = imageOriginal.Height;
